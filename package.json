@@ -1,0 +1,10 @@
+{
+  "name": "weread-engagement-tools",
+  "version": "1.0.0",
+  "description": "Browser extension for WeRead auto paging",
+  "type": "module",
+  "scripts": {
+    "build": "bun run build.ts",
+    "dev": "bun run build.ts"
+  }
+}

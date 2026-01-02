@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "WeRead Auto Pager",
+  "version": "1.0.0",
+  "description": "Automatically click next page button on WeRead",
+  "permissions": ["storage"],
+  "host_permissions": ["https://weread.qq.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "WeRead Auto Pager"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://weread.qq.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
