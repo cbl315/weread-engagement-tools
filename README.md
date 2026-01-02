@@ -8,6 +8,20 @@
 - 通过弹出窗口控制开始/暂停
 - 状态持久化，刷新页面后保持运行状态
 
+## 构建扩展
+
+```bash
+# 安装 Bun（如果还没安装）
+curl -fsSL https://bun.sh/install | bash
+
+# 构建扩展（会自动打包成 zip）
+bun run build
+```
+
+构建完成后会生成：
+- `dist/` - 扩展文件夹（可直接加载）
+- `weread-auto-pager.zip` - 分发包（可分享给他人）
+
 ## 在 Chrome 中使用
 
 ### 加载扩展
@@ -16,7 +30,7 @@
 2. 访问 `chrome://extensions/`
 3. 打开右上角的"开发者模式"
 4. 点击"加载已解压的扩展程序"
-5. 选择项目的根文件夹（包含 manifest.json 的文件夹）
+5. 选择 `dist` 文件夹
 
 ### 使用扩展
 
@@ -25,6 +39,15 @@
 3. 在弹出窗口中点击"开始"按钮
 4. 扩展会自动每隔 30-75 秒点击"下一页"按钮
 5. 点击"暂停"按钮可停止自动翻页
+
+## 分享给他人
+
+运行 `bun run build` 后，会生成 `weread-auto-pager.zip` 文件。
+
+**分享方式：**
+1. 发送 `weread-auto-pager.zip` 给他人
+2. 对方解压 zip 文件
+3. 在 Chrome 中加载解压后的 `dist` 文件夹
 
 ## 弹出窗口界面
 
@@ -52,22 +75,18 @@
 
 ```
 weread-engagement-tools/
-├── content.js      # 内容脚本 - 自动点击"下一页"
-├── background.js   # 后台服务
-├── popup.html      # 弹出窗口界面
-├── popup.js        # 弹出窗口逻辑
-├── manifest.json   # 扩展配置
+├── src/
+│   ├── content.ts   # 内容脚本 - 自动点击"下一页"
+│   ├── background.ts # 后台服务
+│   ├── popup.html   # 弹出窗口界面
+│   ├── popup.ts     # 弹出窗口逻辑
+│   └── chrome.d.ts  # Chrome API 类型声明
+├── manifest.json    # 扩展配置
+├── build.ts         # Bun 构建脚本
+├── package.json
 └── README.md
 ```
 
 ## 开发
 
-如果需要修改源代码（TypeScript 版本在 `src/` 目录），需要安装 Bun：
-
-```bash
-# 安装 Bun
-curl -fsSL https://bun.sh/install | bash
-
-# 构建到根目录
-bun run build
-```
+修改 `src/` 目录中的源代码后，运行 `bun run build` 重新构建。

@@ -1,52 +1,50 @@
 import * as fs from 'fs';
-import * as path from 'path';
-import { build } from 'bun';
+import { spawnSync } from 'child_process';
 
-// 确保dist目录存在
-const distDir = path.join(process.cwd(), 'dist');
-if (!fs.existsSync(distDir)) {
-  fs.mkdirSync(distDir, { recursive: true });
+const distDir = 'dist';
+const zipFile = 'weread-auto-pager.zip';
+
+// 清理并创建dist目录
+if (fs.existsSync(distDir)) {
+  fs.rmSync(distDir, { recursive: true });
+}
+fs.mkdirSync(distDir, { recursive: true });
+
+console.log('Building extension...');
+
+// 复制所有必要的文件
+const files = [
+  ['manifest.json', 'manifest.json'],
+  ['content.js', 'content.js'],
+  ['background.js', 'background.js'],
+  ['popup.js', 'popup.js'],
+  ['popup.html', 'popup.html'],
+];
+
+for (const [src, dest] of files) {
+  fs.copyFileSync(src, `${distDir}/${dest}`);
+  console.log(`✓ Copied ${src}`);
 }
 
-// 构建content script
-await build({
-  entrypoints: [path.join(process.cwd(), 'src', 'content.ts')],
-  outfile: path.join(distDir, 'content.js'),
-  target: 'browser',
-  minify: false,
+// 删除旧的zip文件
+if (fs.existsSync(zipFile)) {
+  fs.rmSync(zipFile);
+}
+
+// 打包成zip
+console.log('\nPackaging into zip...');
+const zipResult = spawnSync('zip', ['-r', '-q', zipFile, 'dist'], {
+  stdio: 'inherit',
 });
 
-// 构建background script
-await build({
-  entrypoints: [path.join(process.cwd(), 'src', 'background.ts')],
-  outfile: path.join(distDir, 'background.js'),
-  target: 'browser',
-  minify: false,
-});
+if (zipResult.status === 0) {
+  const stats = fs.statSync(zipFile);
+  const sizeKB = (stats.size / 1024).toFixed(2);
+  console.log(`✓ Created ${zipFile} (${sizeKB} KB)`);
+} else {
+  console.log('⚠ Failed to create zip file');
+}
 
-// 构建popup script
-await build({
-  entrypoints: [path.join(process.cwd(), 'src', 'popup.ts')],
-  outfile: path.join(distDir, 'popup.js'),
-  target: 'browser',
-  minify: false,
-});
-
-// 复制manifest.json
-fs.copyFileSync(
-  path.join(process.cwd(), 'manifest.json'),
-  path.join(distDir, 'manifest.json')
-);
-
-// 复制popup.html
-fs.copyFileSync(
-  path.join(process.cwd(), 'src', 'popup.html'),
-  path.join(distDir, 'popup.html')
-);
-
-console.log('Build complete! Output in ./dist directory');
-console.log('Load the extension in Chrome/Edge:');
-console.log('1. Open chrome://extensions/');
-console.log('2. Enable Developer mode');
-console.log('3. Click "Load unpacked"');
-console.log('4. Select the dist folder');
+console.log('\n✅ Build complete!');
+console.log('\n📦 Share ' + zipFile + ' with others.');
+console.log('   They just need to unzip and load the "dist" folder in Chrome.\n');

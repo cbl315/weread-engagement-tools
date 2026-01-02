@@ -46,6 +46,8 @@ function startAutoPager() {
   if (isRunning) return;
   isRunning = true;
   console.log('[WeRead Auto Pager] Started');
+  // 启动时立即点击一次
+  clickNextPageButton();
   scheduleNextClick();
   updateStorageState();
 }
