@@ -1,10 +1,59 @@
 // 状态管理
 let isRunning = false;
 let timerId: number | null = null;
+let behaviorTimerId: number | null = null;
 
-// 随机间隔函数 (30-75秒)
+// 随机间隔函数 (20-45秒)
 function randomInterval(): number {
-  return Math.floor(Math.random() * (75000 - 30000 + 1)) + 30000;
+  return Math.floor(Math.random() * (45000 - 20000 + 1)) + 20000;
+}
+
+// 模拟随机鼠标移动
+function simulateMouseMove() {
+  const x = Math.floor(Math.random() * window.innerWidth);
+  const y = Math.floor(Math.random() * window.innerHeight);
+
+  const event = new MouseEvent('mousemove', {
+    clientX: x,
+    clientY: y,
+    bubbles: true,
+    cancelable: true,
+    view: window
+  });
+
+  document.dispatchEvent(event);
+  console.log(`[WeRead Auto Pager] Simulated mouse move to (${x}, ${y})`);
+}
+
+// 模拟轻微滚动
+function simulateScroll() {
+  const scrollDelta = Math.floor(Math.random() * 20) - 10; // -10 到 +10 像素
+  window.scrollBy({ top: scrollDelta, behavior: 'instant' });
+  console.log(`[WeRead Auto Pager] Simulated scroll: ${scrollDelta}px`);
+}
+
+// 随机模拟用户行为
+function simulateHumanBehavior() {
+  if (!isRunning) return;
+
+  const action = Math.random();
+
+  if (action < 0.7) {
+    // 70% 概率鼠标移动
+    simulateMouseMove();
+  } else if (action < 0.9) {
+    // 20% 概率轻微滚动
+    simulateScroll();
+  }
+  // 10% 什么都不做
+
+  // 随机间隔后再次模拟 (2-8秒)
+  const nextBehaviorInterval = Math.floor(Math.random() * 6000) + 2000;
+  if (isRunning) {
+    behaviorTimerId = window.setTimeout(() => {
+      simulateHumanBehavior();
+    }, nextBehaviorInterval);
+  }
 }
 
 // 查找并点击下一页按钮
@@ -46,7 +95,9 @@ function startAutoPager() {
   if (isRunning) return;
   isRunning = true;
   console.log('[WeRead Auto Pager] Started');
-  scheduleNextClick();
+  clickNextPageButton(); // 启动时立即翻页一次
+  scheduleNextClick(); // 然后调度下一次点击
+  simulateHumanBehavior(); // 启动行为模拟
   updateStorageState();
 }
 
@@ -56,6 +107,10 @@ function stopAutoPager() {
   if (timerId !== null) {
     clearTimeout(timerId);
     timerId = null;
+  }
+  if (behaviorTimerId !== null) {
+    clearTimeout(behaviorTimerId);
+    behaviorTimerId = null;
   }
   console.log('[WeRead Auto Pager] Stopped');
   updateStorageState();

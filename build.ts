@@ -12,19 +12,31 @@ fs.mkdirSync(distDir, { recursive: true });
 
 console.log('Building extension...');
 
-// 复制所有必要的文件
-const files = [
-  ['manifest.json', 'manifest.json'],
-  ['content.js', 'content.js'],
-  ['background.js', 'background.js'],
-  ['popup.js', 'popup.js'],
-  ['popup.html', 'popup.html'],
+// 编译 TypeScript 文件直接到 dist/
+const buildTasks = [
+  { src: 'src/content.ts', dest: 'content.js' },
+  { src: 'src/background.ts', dest: 'background.js' },
+  { src: 'src/popup.ts', dest: 'popup.js' },
 ];
 
-for (const [src, dest] of files) {
-  fs.copyFileSync(src, `${distDir}/${dest}`);
-  console.log(`✓ Copied ${src}`);
+for (const task of buildTasks) {
+  const result = spawnSync('bun', ['build', task.src, '--outfile', `${distDir}/${task.dest}`, '--target', 'browser'], {
+    stdio: 'inherit',
+  });
+
+  if (result.status !== 0) {
+    console.error(`❌ Failed to build ${task.src}`);
+    process.exit(1);
+  }
+  console.log(`✓ Built ${task.src} → dist/${task.dest}`);
 }
+
+// 复制静态文件到 dist
+fs.copyFileSync('manifest.json', `${distDir}/manifest.json`);
+console.log(`✓ Copied manifest.json to dist/`);
+
+fs.copyFileSync('popup.html', `${distDir}/popup.html`);
+console.log(`✓ Copied popup.html to dist/`);
 
 // 删除旧的zip文件
 if (fs.existsSync(zipFile)) {
@@ -46,5 +58,5 @@ if (zipResult.status === 0) {
 }
 
 console.log('\n✅ Build complete!');
-console.log('\n📦 Share ' + zipFile + ' with others.');
-console.log('   They just need to unzip and load the "dist" folder in Chrome.\n');
+console.log('\n📦 Load the "dist" folder in Chrome at chrome://extensions/');
+console.log('   Or share ' + zipFile + ' with others.\n');

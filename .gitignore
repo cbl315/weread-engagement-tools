@@ -28,3 +28,9 @@ yarn-debug.log*
 yarn-error.log*
 
 .claude
+
+# Project-specific build artifacts
+*.zip
+content.js
+background.js
+popup.js

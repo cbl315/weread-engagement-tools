@@ -5,6 +5,7 @@
 ## 功能
 
 - 每隔 30-75 秒随机间隔自动点击"下一页"按钮
+- 模拟真实用户行为（随机鼠标移动、轻微滚动）
 - 通过弹出窗口控制开始/暂停
 - 状态持久化，刷新页面后保持运行状态
 
@@ -76,12 +77,11 @@ bun run build
 ```
 weread-engagement-tools/
 ├── src/
-│   ├── content.ts   # 内容脚本 - 自动点击"下一页"
+│   ├── content.ts   # 内容脚本 - 自动点击"下一页" + 行为模拟
 │   ├── background.ts # 后台服务
-│   ├── popup.html   # 弹出窗口界面
-│   ├── popup.ts     # 弹出窗口逻辑
-│   └── chrome.d.ts  # Chrome API 类型声明
+│   └── popup.ts     # 弹出窗口逻辑
 ├── manifest.json    # 扩展配置
+├── popup.html       # 弹出窗口界面
 ├── build.ts         # Bun 构建脚本
 ├── package.json
 └── README.md
